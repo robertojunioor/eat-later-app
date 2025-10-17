@@ -100,6 +100,14 @@ export default {
             boxShadow: "0 0 30px hsl(var(--primary-glow) / 0.5)"
           }
         },
+        "countdown": {
+          "0%": {
+            strokeDashoffset: "283"
+          },
+          "100%": {
+            strokeDashoffset: "0"
+          }
+        },
         "slide-up": {
           "0%": {
             transform: "translateY(20px)",
