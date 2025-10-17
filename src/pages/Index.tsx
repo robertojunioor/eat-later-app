@@ -1,13 +1,21 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import QueueCard from "@/components/QueueCard";
 
 const Index = () => {
+  // Dados de exemplo - em produção, viriam de uma API ou estado global
+  const customerData = {
+    customerName: "Maria Silva",
+    position: 3,
+    totalInQueue: 12,
+    estimatedWaitTime: "15-20 minutos",
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
+    <QueueCard
+      customerName={customerData.customerName}
+      position={customerData.position}
+      totalInQueue={customerData.totalInQueue}
+      estimatedWaitTime={customerData.estimatedWaitTime}
+    />
   );
 };
 
