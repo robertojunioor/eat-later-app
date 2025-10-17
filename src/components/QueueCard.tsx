@@ -1,18 +1,27 @@
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MapPin, Book, Clock, LogOut } from "lucide-react";
+import { MapPin, Book, Share2, LogOut, Users } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import waitingIllustration from "@/assets/waiting-illustration.jpg";
+import restaurantHeader from "@/assets/restaurant-header.jpg";
+import restaurantLogo from "@/assets/restaurant-logo.jpg";
 
 interface QueueCardProps {
   customerName: string;
   position: number;
   totalInQueue: number;
   estimatedWaitTime: string;
+  consumerCode: string;
+  restaurantName: string;
 }
 
-const QueueCard = ({ customerName, position, totalInQueue, estimatedWaitTime }: QueueCardProps) => {
+const QueueCard = ({ 
+  customerName, 
+  position, 
+  totalInQueue, 
+  estimatedWaitTime,
+  consumerCode,
+  restaurantName
+}: QueueCardProps) => {
   const [hasLeft, setHasLeft] = useState(false);
 
   const handleLeaveQueue = () => {
@@ -23,8 +32,7 @@ const QueueCard = ({ customerName, position, totalInQueue, estimatedWaitTime }: 
   };
 
   const handleOpenMaps = () => {
-    // Exemplo com coordenadas genéricas - substituir com as coordenadas reais do restaurante
-    const restaurantAddress = "Restaurante Delícia";
+    const restaurantAddress = restaurantName;
     const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurantAddress)}`;
     window.open(mapsUrl, "_blank");
     toast.success("Abrindo Google Maps...");
@@ -32,101 +40,163 @@ const QueueCard = ({ customerName, position, totalInQueue, estimatedWaitTime }: 
 
   const handleViewMenu = () => {
     toast.success("Abrindo cardápio...");
-    // Aqui você pode adicionar um link para o cardápio ou abrir um modal
+  };
+
+  const handleShare = async () => {
+    const shareData = {
+      title: `${restaurantName} - Fila de Espera`,
+      text: `Estou na posição ${position} da fila do ${restaurantName}!`,
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        toast.success("Compartilhado com sucesso!");
+      } else {
+        // Fallback para copiar link
+        await navigator.clipboard.writeText(window.location.href);
+        toast.success("Link copiado para área de transferência!");
+      }
+    } catch (err) {
+      console.error("Erro ao compartilhar:", err);
+    }
   };
 
   if (hasLeft) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-secondary/20 to-background">
-        <Card className="w-full max-w-md p-8 text-center animate-fade-in">
+      <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+        <div className="w-full max-w-md p-8 text-center animate-fade-in">
           <h2 className="text-2xl font-bold mb-4">Você saiu da fila</h2>
           <p className="text-muted-foreground">Esperamos vê-lo novamente em breve!</p>
-        </Card>
+        </div>
       </div>
     );
   }
 
-  const progressPercentage = ((totalInQueue - position) / totalInQueue) * 100;
-
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-secondary/20 to-background">
-      <div className="w-full max-w-md space-y-6 animate-fade-in">
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-            Fila de Espera
-          </h1>
-          <p className="text-muted-foreground">Restaurante Delícia</p>
-        </div>
+    <div className="min-h-screen bg-background pb-20">
+      {/* Header com saudação */}
+      <div className="px-4 pt-6 pb-4 space-y-2 animate-fade-in">
+        <h1 className="text-2xl font-bold text-foreground">
+          {customerName}, você entrou na fila
+        </h1>
+        <p className="text-muted-foreground text-sm">
+          Fique tranquilo, enviaremos uma mensagem quando chegar a sua vez.
+        </p>
+      </div>
 
-        {/* Main Card */}
-        <Card className="p-6 space-y-6 shadow-xl animate-slide-up">
-          {/* Customer Info */}
-          <div className="text-center space-y-2">
-            <p className="text-sm text-muted-foreground">Bem-vindo(a)</p>
-            <h2 className="text-2xl font-bold">{customerName}</h2>
-          </div>
-
-          {/* Position Badge */}
-          <div className="flex justify-center">
-            <div className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground px-8 py-6 rounded-2xl shadow-lg animate-pulse-glow">
-              <p className="text-sm font-medium mb-1">Sua posição</p>
-              <p className="text-5xl font-bold">{position}</p>
-              <p className="text-sm mt-1 opacity-90">de {totalInQueue} na fila</p>
+      {/* Card principal com foto e posição */}
+      <div className="px-4 mb-4 animate-slide-up">
+        <div className="relative rounded-2xl overflow-hidden shadow-lg">
+          {/* Foto do restaurante */}
+          <div className="relative h-48">
+            <img
+              src={restaurantHeader}
+              alt={restaurantName}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60" />
+            
+            {/* Badge de posição */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
+              <div className="text-7xl font-bold drop-shadow-lg">{position}°</div>
+              <div className="text-lg font-medium drop-shadow-md mt-1">
+                Posição na fila de espera
+              </div>
+              <div className="flex items-center gap-2 mt-2 text-sm opacity-90">
+                <Users className="w-4 h-4" />
+                <span>{totalInQueue} pessoas na fila</span>
+              </div>
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* Progress Bar */}
-          <div className="space-y-2">
-            <div className="h-3 bg-secondary rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-primary to-primary/70 transition-all duration-500 ease-out"
-                style={{ width: `${progressPercentage}%` }}
+      {/* Informações do restaurante */}
+      <div className="px-4 mb-4 animate-fade-in">
+        <div className="bg-card rounded-xl p-4 shadow-sm border border-border">
+          <div className="flex items-center gap-3">
+            {/* Logo do restaurante */}
+            <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-primary/10">
+              <img
+                src={restaurantLogo}
+                alt={`Logo ${restaurantName}`}
+                className="w-full h-full object-cover"
               />
             </div>
-            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-              <Clock className="w-4 h-4" />
-              <span>Tempo estimado: {estimatedWaitTime}</span>
+            
+            {/* Nome e código */}
+            <div className="flex-1">
+              <h3 className="font-bold text-foreground">{restaurantName}</h3>
+              <p className="text-sm text-muted-foreground">
+                Código de consumo: <span className="font-semibold text-foreground">{consumerCode}</span>
+              </p>
             </div>
           </div>
 
-          {/* Waiting Illustration */}
-          <div className="rounded-xl overflow-hidden shadow-md">
-            <img
-              src={waitingIllustration}
-              alt="Pessoa aguardando no restaurante"
-              className="w-full h-48 object-cover"
-            />
+          {/* Tempo estimado */}
+          <div className="mt-3 pt-3 border-t border-border">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Tempo estimado:</span>
+              <span className="font-semibold text-primary">{estimatedWaitTime}</span>
+            </div>
           </div>
-
-          {/* Action Buttons */}
-          <div className="space-y-3">
-            <Button onClick={handleViewMenu} className="w-full" size="lg">
-              <Book className="w-5 h-5" />
-              Ver Cardápio
-            </Button>
-            
-            <Button onClick={handleOpenMaps} variant="outline" className="w-full" size="lg">
-              <MapPin className="w-5 h-5" />
-              Como Chegar
-            </Button>
-            
-            <Button
-              onClick={handleLeaveQueue}
-              variant="destructive"
-              className="w-full"
-              size="lg"
-            >
-              <LogOut className="w-5 h-5" />
-              Desistir da Fila
-            </Button>
-          </div>
-        </Card>
-
-        {/* Footer Info */}
-        <div className="text-center text-sm text-muted-foreground animate-fade-in">
-          <p>Você receberá uma notificação quando sua mesa estiver pronta</p>
         </div>
+      </div>
+
+      {/* Botões de ação */}
+      <div className="px-4 space-y-3 animate-fade-in">
+        {/* Compartilhar e Desistir - Layout lado a lado como no exemplo */}
+        <div className="grid grid-cols-2 gap-3">
+          <Button 
+            onClick={handleShare} 
+            variant="default" 
+            size="lg"
+            className="w-full"
+          >
+            <Share2 className="w-4 h-4" />
+            Compartilhar
+          </Button>
+          
+          <Button
+            onClick={handleLeaveQueue}
+            variant="outline"
+            size="lg"
+            className="w-full"
+          >
+            Desistir da fila
+          </Button>
+        </div>
+
+        {/* Ver Cardápio */}
+        <Button 
+          onClick={handleViewMenu} 
+          variant="secondary" 
+          size="lg"
+          className="w-full"
+        >
+          <Book className="w-4 h-4" />
+          Ver Cardápio
+        </Button>
+        
+        {/* Como Chegar */}
+        <Button 
+          onClick={handleOpenMaps} 
+          variant="secondary" 
+          size="lg"
+          className="w-full"
+        >
+          <MapPin className="w-4 h-4" />
+          Como Chegar
+        </Button>
+      </div>
+
+      {/* Footer fixo */}
+      <div className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-sm border-t border-border py-3">
+        <p className="text-center text-xs text-muted-foreground">
+          Feito com ❤️ por <span className="font-semibold text-foreground">Restaurante Delícia</span>
+        </p>
       </div>
     </div>
   );

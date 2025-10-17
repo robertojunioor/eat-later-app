@@ -7,6 +7,8 @@ const Index = () => {
     position: 3,
     totalInQueue: 12,
     estimatedWaitTime: "15-20 minutos",
+    consumerCode: "857",
+    restaurantName: "Restaurante Delícia",
   };
 
   return (
@@ -15,6 +17,8 @@ const Index = () => {
       position={customerData.position}
       totalInQueue={customerData.totalInQueue}
       estimatedWaitTime={customerData.estimatedWaitTime}
+      consumerCode={customerData.consumerCode}
+      restaurantName={customerData.restaurantName}
     />
   );
 };
